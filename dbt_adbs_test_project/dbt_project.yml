@@ -7,8 +7,8 @@ test-paths: ['test']
 
 quoting:
   database: false
-  identifier: false
-  schema: false
+  identifier: true
+  schema: true
 
 seeds:
     dbt_adbs_test_project:

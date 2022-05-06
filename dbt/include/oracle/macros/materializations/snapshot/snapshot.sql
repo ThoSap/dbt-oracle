@@ -50,10 +50,10 @@
 
     snapshotted_data as (
 
-        select {{ target_relation.quote(schema=False, identifier=False) }}.*,
+        select {{ target_relation.quote(schema=True, identifier=True) | upper }}.*,
             {{ strategy.unique_key }} as dbt_unique_key
 
-        from {{ target_relation.quote(schema=False, identifier=False) }}
+        from {{ target_relation.quote(schema=True, identifier=True) | upper }}
         where dbt_valid_to is null
 
     ),

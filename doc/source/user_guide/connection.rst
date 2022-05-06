@@ -87,8 +87,8 @@ Specify the connection profile in `dbt_project.yml` file as shown below
 
     quoting:
       database: false
-      identifier: false
-      schema: false
+      identifier: true
+      schema: true
 
     # seed configurations
     seeds:

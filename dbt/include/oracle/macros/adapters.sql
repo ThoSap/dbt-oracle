@@ -90,7 +90,7 @@
 
   create {% if temporary -%}
     global temporary
-  {%- endif %} table {{ relation.include(database=False, schema=(not temporary)).quote(schema=False, identifier=False) }}
+  {%- endif %} table {{ relation.include(database=False, schema=(not temporary)).quote(schema=True, identifier=True) | upper }}
   {% if temporary -%} on commit preserve rows {%- endif %}
   as
     {{ sql }}
@@ -105,7 +105,7 @@
 
   create {% if temporary -%}
     global temporary
-  {%- endif %} table {{ relation.include(database=False, schema=(not temporary)).quote(schema=False, identifier=False) }}
+  {%- endif %} table {{ relation.include(database=False, schema=(not temporary)).quote(schema=True, identifier=True) | upper }}
   {% if temporary -%} on commit preserve rows {%- endif %}
   as
     {{ sql }}
@@ -115,7 +115,7 @@
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  create view {{ relation.include(database=False).quote(schema=False, identifier=False)  }} as
+  create view {{ relation.include(database=False).quote(schema=True, identifier=True) | upper }} as
     {{ sql }}
 
 {% endmacro %}
@@ -198,7 +198,7 @@
 {% macro oracle__alter_relation_comment(relation, comment) %}
   {% set escaped_comment = oracle_escape_comment(comment) %}
   {# "comment on table" even for views #}
-  comment on table {{ relation.quote(schema=False, identifier=False) }} is {{ escaped_comment }}
+  comment on table {{ relation.quote(schema=True, identifier=True) | upper }} is {{ escaped_comment }}
 {% endmacro %}
 
 {% macro oracle__persist_docs(relation, model, for_relation, for_columns) -%}
@@ -211,7 +211,7 @@
       {% set comment = column_dict[column_name]['description'] %}
       {% set escaped_comment = oracle_escape_comment(comment) %}
       {% call statement('alter _column comment', fetch_result=False) -%}
-        comment on column {{ relation.quote(schema=False, identifier=False) }}.{{ column_name }} is {{ escaped_comment }}
+        comment on column {{ relation.quote(schema=True, identifier=True) | upper }}.{{ adapter.quote(column_name) | upper }} is {{ escaped_comment }}
       {%- endcall %}
     {% endfor %}
   {% endif %}
@@ -227,16 +227,16 @@
   {%- set tmp_column = column_name + "__dbt_alter" -%}
 
   {% call statement('alter_column_type 1', fetch_result=False) %}
-    alter table {{ relation.quote(schema=False, identifier=False) }} add column {{ adapter.quote(tmp_column) }} {{ new_column_type }}
+    alter table {{ relation.quote(schema=True, identifier=True) | upper }} add column {{ adapter.quote(tmp_column) | upper }} {{ new_column_type }}
   {% endcall %}
   {% call statement('alter_column_type 2', fetch_result=False) %}
-    update {{ relation.quote(schema=False, identifier=False)  }} set {{ adapter.quote(tmp_column) }} = {{ adapter.quote(column_name) }}
+    update {{ relation.quote(schema=True, identifier=True) | upper }} set {{ adapter.quote(tmp_column) | upper }} = {{ adapter.quote(column_name) | upper }}
   {% endcall %}
   {% call statement('alter_column_type 3', fetch_result=False) %}
-    alter table {{ relation.quote(schema=False, identifier=False) }} drop column {{ adapter.quote(column_name) }} cascade
+    alter table {{ relation.quote(schema=True, identifier=True) | upper }} drop column {{ adapter.quote(column_name) | upper }} cascade
   {% endcall %}
   {% call statement('alter_column_type 4', fetch_result=False) %}
-    rename column {{ relation.quote(schema=False, identifier=False) }}.{{ adapter.quote(tmp_column) }} to {{ adapter.quote(column_name) }}
+    rename column {{ relation.quote(schema=True, identifier=True) | upper }}.{{ adapter.quote(tmp_column) | upper }} to {{ adapter.quote(column_name) | upper }}
   {% endcall %}
 
 {% endmacro %}
@@ -250,7 +250,7 @@
      pragma EXCEPTION_INIT(attempted_ddl_on_in_use_GTT, -14452);
   BEGIN
      SAVEPOINT start_transaction;
-     EXECUTE IMMEDIATE 'DROP {{ relation.type }} {{ relation.quote(schema=False, identifier=False) }} cascade constraint';
+     EXECUTE IMMEDIATE 'DROP {{ relation.type }} {{ relation.quote(schema=True, identifier=True) | upper }} cascade constraint';
      COMMIT;
   EXCEPTION
      WHEN attempted_ddl_on_in_use_GTT THEN
@@ -263,13 +263,13 @@
 
 {% macro oracle__truncate_relation(relation) -%}
   {% call statement('truncate_relation') -%}
-    truncate table {{ relation.quote(schema=False, identifier=False) }}
+    truncate table {{ relation.quote(schema=True, identifier=True) | upper }}
   {%- endcall %}
 {% endmacro %}
 
 {% macro oracle__rename_relation(from_relation, to_relation) -%}
   {% call statement('rename_relation') -%}
-    rename {{ from_relation.include(False, False, True).quote(schema=False, identifier=False) }} to {{ to_relation.include(False, False, True).quote(schema=False, identifier=False) }}
+    rename {{ from_relation.include(False, False, True).quote(schema=True, identifier=True) | upper }} to {{ to_relation.include(False, False, True).quote(schema=True, identifier=True) | upper }}
   {%- endcall %}
 {% endmacro %}
 

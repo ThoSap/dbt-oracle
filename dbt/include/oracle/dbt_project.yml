@@ -5,7 +5,7 @@ version: 1.0
 
 quoting:
   database: false
-  schema: false
-  identifier: false
+  schema: true
+  identifier: true
 
 macro-paths: ["macros"]
