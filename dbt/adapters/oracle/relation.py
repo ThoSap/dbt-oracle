@@ -39,6 +39,7 @@ class OracleIncludePolicy(Policy):
 class OracleRelation(BaseRelation):
     quote_policy: OracleQuotePolicy = OracleQuotePolicy()
     include_policy: OracleIncludePolicy = OracleIncludePolicy()
+    quote_character: str = '"'
 
     @staticmethod
     def add_ephemeral_prefix(name):
