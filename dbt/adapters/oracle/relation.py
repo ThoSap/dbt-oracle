@@ -14,6 +14,7 @@ Copyright (c) 2020, Vitor Avancini
   See the License for the specific language governing permissions and
   limitations under the License.
 """
+import dbt.exceptions
 from dataclasses import dataclass
 
 from dbt.adapters.base.relation import BaseRelation, Policy
@@ -39,12 +40,6 @@ class OracleRelation(BaseRelation):
     quote_policy: OracleQuotePolicy = OracleQuotePolicy()
     include_policy: OracleIncludePolicy = OracleIncludePolicy()
 
-    def __post_init__(self):
-        if self.database != self.schema and self.database:
-            raise dbt.exceptions.RuntimeException(
-                f'Cannot set database {self.database} in Oracle!'
-            )
-
     @staticmethod
     def add_ephemeral_prefix(name):
         return f'dbt__cte__{name}__'
@@ -52,7 +47,7 @@ class OracleRelation(BaseRelation):
     def render(self):
         if self.include_policy.database and self.include_policy.schema:
             raise dbt.exceptions.RuntimeException(
-                'Got a Oracle relation with schema and database set to '
-                'include, but only one can be set'
+                'Got a Oracle relation with schema and database include policy set to '
+                'True, but only schema should be set.'
             )
-    return super().render()
+        return super().render()

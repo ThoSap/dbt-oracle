@@ -54,11 +54,11 @@ class OracleAdapterCredentials(Credentials):
     of parameters profiled in the profile.
     """
     # Mandatory required arguments.
-    user: str
-    password: str
-    # Database will always be None or must be the same as schema
-    # as the database name (userenv DB_NAME) is not needed when initiating a connection
+    user: Optional[str] = None
+    password: Optional[str] = None
+    # Database is not needed when initiating an Oracle DB connecting
     database: Optional[str] = None
+    schema: Optional[str] = None
 
     # OracleConnectionMethod.TNS
     tns_name: Optional[str] = None
@@ -68,7 +68,6 @@ class OracleAdapterCredentials(Credentials):
     host: Optional[str] = None
     port: Optional[Port] = None
     service: Optional[str] = None
-    schema: Optional[str] = None
 
     # OracleConnectionMethod.CONNECTION_STRING
     connection_string: Optional[str] = None
@@ -81,10 +80,18 @@ class OracleAdapterCredentials(Credentials):
     cclass: Optional[str] = None
     purity: Optional[str] = None
 
-
     _ALIASES = {
         'pass': 'password',
     }
+
+    def __post_init__(self):
+        # In Oracle the userenv DB_NAME (database) is not needed when initiating a connection
+        if self.database is not None:
+            raise dbt.exceptions.RuntimeException(
+                f'    database: {self.database} \n'
+                f'With Oracle DB the database property must not be set'
+            )
+        self.database = None
 
     @property
     def type(self):
@@ -93,17 +100,6 @@ class OracleAdapterCredentials(Credentials):
     @property
     def unique_field(self):
         return self.user
-
-    def __post_init__(self):
-        # In Oracle the userenv DB_NAME (database) is not needed when initiating a connection
-        if self.database is not None and self.database != self.schema:
-            raise dbt.exceptions.RuntimeException(
-                f'    schema: {self.schema} \n'
-                f'    database: {self.database} \n'
-                f'On Oracle, database must be omitted or have the same value as'
-                f' schema.'
-            )
-        self.database = None
 
     def _connection_keys(self) -> Tuple[str]:
         """
