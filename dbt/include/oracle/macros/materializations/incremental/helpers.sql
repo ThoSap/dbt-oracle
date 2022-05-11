@@ -24,17 +24,17 @@
 
     {%- if unique_key is not none -%}
     delete
-    from {{ target_relation.quote(schema=True, identifier=True) | upper }}
-    where ({{ unique_key.quote(schema=True, identifier=True) | upper }}) in (
-        select ({{ unique_key.quote(schema=True, identifier=True) | upper }})
-        from {{ tmp_relation.quote(schema=True, identifier=True) | upper }}
+    from {{ '"{}"'.format(target_relation) | upper }}
+    where ({{ '"{}"'.format(unique_key) | upper }}) in (
+        select ({{ '"{}"'.format(unique_key) | upper }})
+        from {{ '"{}"'.format(tmp_relation) | upper }}
     );
     {%- endif %}
 
-    insert into {{ target_relation.quote(schema=True, identifier=True) | upper }} ({{ dest_cols_csv }})
+    insert into {{ '"{}"'.format(target_relation) | upper }} ({{ dest_cols_csv }})
     (
        select {{ dest_cols_csv }}
-       from {{ tmp_relation.quote(schema=True, identifier=True) | upper }}
+       from {{ '"{}"'.format(tmp_relation) | upper }}
     )
 {%- endmacro %}
 
@@ -47,9 +47,9 @@
     {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
     {%- if unique_key is not none -%}
-    merge into {{ target_relation.quote(schema=True, identifier=True) | upper }} target
-      using {{ tmp_relation.quote(schema=True, identifier=True) | upper }} temp
-      on (temp.{{ unique_key.quote(schema=True, identifier=True) | upper }} = target.{{ unique_key.quote(schema=True, identifier=True) | upper }})
+    merge into {{ '"{}"'.format(target_relation) | upper }} target
+      using {{ '"{}"'.format(tmp_relation) | upper }} temp
+      on (temp.{{ '"{}"'.format(unique_key) | upper }} = target.{{ '"{}"'.format(unique_key) | upper }})
     when matched then
       update set
       {% for col in dest_columns if col.name != unique_key %}
@@ -65,10 +65,10 @@
         {% endfor %}
       )
     {%- else %}
-    insert into {{ target_relation.quote(schema=True, identifier=True) | upper }} ({{ dest_cols_csv }})
+    insert into {{ '"{}"'.format(target_relation) | upper }} ({{ dest_cols_csv }})
     (
        select {{ dest_cols_csv }}
-       from {{ tmp_relation.quote(schema=True, identifier=True) | upper }}
+       from {{ '"{}"'.format(tmp_relation) | upper }}
     )
     {% endif %}
 {%- endmacro %}
