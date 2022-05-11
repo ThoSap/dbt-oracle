@@ -18,7 +18,7 @@
     {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
     {%- set dest_columns = [] -%}
     {% for col in temp_columns  %}
-        {{ dest_columns.append(col.quote(schema=True, identifier=True) | upper) }}
+        {{ dest_columns.append('"{}"'.format(col) | upper) }}
     {% endfor %}
     {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
@@ -42,7 +42,7 @@
     {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
     {%- set dest_columns = [] -%}
     {% for col in temp_columns  %}
-        {{ dest_columns.append(col.quote(schema=True, identifier=True) | upper) }}
+        {{ dest_columns.append('"{}"'.format(col) | upper) }}
     {% endfor %}
     {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
