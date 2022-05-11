@@ -15,12 +15,12 @@
   limitations under the License.
 #}
 {% macro oracle_incremental_upsert_backup(tmp_relation, target_relation, unique_key=none, statement_name="main") %}
-    {%- set temp_columns = adapter.get_columns_in_relation(target_relation) -%}
+    {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
     {%- set dest_columns = [] -%}
     {% for col in temp_columns  %}
         {{ dest_columns.append(col.quote(schema=True, identifier=True) | upper) }}
     {% endfor %}
-    {%- set dest_cols_csv = dest_columns | map(attribute='name') | join(', ') -%}
+    {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
     {%- if unique_key is not none -%}
     delete
@@ -39,12 +39,12 @@
 {%- endmacro %}
 
 {% macro oracle_incremental_upsert(tmp_relation, target_relation, unique_key=none, statement_name="main") %}
-    {%- set temp_columns = adapter.get_columns_in_relation(target_relation) -%}
+    {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
     {%- set dest_columns = [] -%}
     {% for col in temp_columns  %}
         {{ dest_columns.append(col.quote(schema=True, identifier=True) | upper) }}
     {% endfor %}
-    {%- set dest_cols_csv = dest_columns | map(attribute='name') | join(', ') -%}
+    {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
     {%- if unique_key is not none -%}
     merge into {{ target_relation.quote(schema=True, identifier=True) | upper }} target
