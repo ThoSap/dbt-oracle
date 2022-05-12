@@ -39,7 +39,11 @@
 {%- endmacro %}
 
 {% macro oracle_incremental_upsert(tmp_relation, target_relation, unique_key=none, statement_name="main") %}
-    {%- set dest_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
+    {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
+    {%- set dest_columns = [] -%}
+    {%- for col in temp_columns  -%}
+        {{- dest_columns.append('"{}"'.format(col) | upper) | default("", True) -}}
+    {%- endfor -%}
     {%- set dest_cols_csv = dest_columns | join(', ') -%}
 
     {%- if unique_key is not none -%}
