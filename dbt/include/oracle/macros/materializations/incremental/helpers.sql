@@ -52,15 +52,14 @@
     {{ log("### DEBUG oracle_incremental_upsert ### dest_cols_csv " ~ dest_cols_csv) }}
 
     {%- if unique_key is not none -%}
-    merge into {{ '"{}"'.format(target_relation) | upper }} target
-      using {{ '"{}"'.format(tmp_relation) | upper }} temp
+    merge into {{ '"{}"'.format(target_relation).replace('.', '"."') | upper }} target
+      using {{ '"{}"'.format(tmp_relation).replace('.', '"."') | upper }} temp
       on (temp.{{ unique_key }} = target.{{ unique_key }})
     when matched then
       update set
-      {% for col in dest_columns if col != unique_key %}
-        target.{{ col }} = temp.{{ col }}
-        {% if not loop.last %}, {% endif %}
-      {% endfor %}
+      {%- for col in dest_columns if col != unique_key -%}
+        target.{{ col }} = temp.{{ col }}{%- if not loop.last -%}, {%- endif -%}
+      {%- endfor -%}
     when not matched then
       insert( {{ dest_cols_csv }} )
       values(
@@ -70,10 +69,10 @@
         {% endfor %}
       )
     {%- else %}
-    insert into {{ '"{}"'.format(target_relation) | upper }} ({{ dest_cols_csv }})
+    insert into {{ '"{}"'.format(target_relation).replace('.', '"."') | upper }} ({{ dest_cols_csv }})
     (
        select {{ dest_cols_csv }}
-       from {{ '"{}"'.format(tmp_relation) | upper }}
+       from {{ '"{}"'.format(tmp_relation).replace('.', '"."') | upper }}
     )
     {% endif %}
 {%- endmacro %}
