@@ -166,7 +166,7 @@
           from sys.all_tab_columns
       )
       select
-          lower(column_name) as "name",
+          '"' | upper(column_name) | '"' as "name",
           lower(data_type) as "type",
           char_length as "character_maximum_length",
           numeric_precision as "numeric_precision",
@@ -282,9 +282,9 @@
 
 {% macro oracle__list_schemas(database) %}
   {% call statement('list_schemas', fetch_result=True, auto_begin=False) -%}
-     	select lower(username) as "name"
-      from sys.all_users
-      order by username
+    select  lower(username) as "name"
+    from    sys.all_users
+    order by username
   {% endcall %}
   {{ return(load_result('list_schemas').table) }}
 {% endmacro %}
@@ -298,35 +298,33 @@
 
 {% macro oracle__list_relations_without_caching(schema_relation) %}
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
-    with tables as
-      (select UPPER(SYS_CONTEXT('userenv', 'DB_NAME')) table_catalog,
-         UPPER(owner) table_schema,
-         table_name,
-         case
-           when iot_type = 'Y'
-           then 'IOT'
-           when temporary = 'Y'
-           then 'TEMP'
-           else 'BASE TABLE'
-         end table_type
-       from sys.all_tables
-       union all
-       select UPPER(SYS_CONTEXT('userenv', 'DB_NAME')),
-         UPPER(owner),
-         view_name,
-         'VIEW'
-       from sys.all_views
+    with tables as (
+      select  upper(sys_context('userenv', 'DB_NAME')) table_catalog,
+            , upper(owner) table_schema
+            , table_name
+            , case
+                when iot_type = 'Y' then 'IOT'
+                when temporary = 'Y' then 'TEMP'
+                else 'BASE TABLE'
+              end table_type
+      from    sys.all_tables
+      union all
+      select  upper(sys_context('userenv', 'DB_NAME'))
+            , upper(owner)
+            , view_name
+            , 'VIEW'
+      from    sys.all_views
   )
-  select lower(table_catalog) as "database_name"
-    ,lower(table_name) as "name"
-    ,lower(table_schema) as "schema_name"
-    ,case table_type
-      when 'BASE TABLE' then 'table'
-      when 'VIEW' then 'view'
-    end as "kind"
-  from tables
-  where table_type in ('BASE TABLE', 'VIEW')
-    and table_schema = upper('{{ schema_relation.schema }}')
+  select  lower(table_catalog) as "database_name"
+        , '"' | upper(table_name) | '"' as "name"
+        , '"' | upper(table_schema) | '"' as "schema_name"
+        , case table_type
+            when 'BASE TABLE' then 'table'
+            when 'VIEW' then 'view'
+          end as "kind"
+  from    tables
+  where   table_type in ('BASE TABLE', 'VIEW')
+    and   table_schema = upper('{{ schema_relation.schema }}')
   {% endcall %}
   {{ return(load_result('list_relations_without_caching').table) }}
 {% endmacro %}
