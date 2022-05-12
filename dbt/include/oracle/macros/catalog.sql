@@ -86,11 +86,11 @@
           )
           select
               lower(tables.table_catalog) as "table_database",
-              lower(tables.table_schema) as "table_schema",
-              lower(tables.table_name) as "table_name",
+              '"' || upper((tables.table_schema) || '"' as "table_schema",
+              '"' || upper((tables.table_name) || '"' as "table_name",
               lower(tables.table_type) as "table_type",
               all_tab_comments.comments as "table_comment",
-              lower(columns.column_name) as "column_name",
+              '"' || upper((columns.column_name) || '"' as "column_name",
               ordinal_position as "column_index",
               lower(case
                 when data_type like '%CHAR%'
