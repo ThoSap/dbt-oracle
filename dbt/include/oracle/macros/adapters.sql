@@ -316,8 +316,8 @@
       from    sys.all_views
   )
   select  lower(table_catalog) as "database_name"
-        , '"' | upper(table_name) | '"' as "name"
-        , '"' | upper(table_schema) | '"' as "schema_name"
+        , '"' || upper(table_name) || '"' as "name"
+        , '"' || upper(table_schema) || '"' as "schema_name"
         , case table_type
             when 'BASE TABLE' then 'table'
             when 'VIEW' then 'view'
