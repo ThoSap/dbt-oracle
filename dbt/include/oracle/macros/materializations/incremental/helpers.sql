@@ -40,16 +40,11 @@
 
 {% macro oracle_incremental_upsert(tmp_relation, target_relation, unique_key=none, statement_name="main") %}
     {%- set temp_columns = adapter.get_columns_in_relation(target_relation) | map(attribute='name') -%}
-    {{ log("### DEBUG oracle_incremental_upsert ### temp_columns " ~ temp_columns) }}
     {%- set dest_columns = [] -%}
     {% for formatted_col in temp_columns  %}
-        {{ log("### DEBUG oracle_incremental_upsert ### for formatted_col " ~ formatted_col) }}
         {{ dest_columns.append('"{}"'.format(formatted_col) | upper) }}
-        {{ log("### DEBUG oracle_incremental_upsert ### for formatted_col format " ~ ('"{}"'.format(formatted_col) | upper)) }}
     {% endfor %}
     {%- set dest_cols_csv = dest_columns | join(', ') -%}
-    {{ log("### DEBUG oracle_incremental_upsert ### dest_columns " ~ dest_columns) }}
-    {{ log("### DEBUG oracle_incremental_upsert ### dest_cols_csv " ~ dest_cols_csv) }}
 
     {%- if unique_key is not none -%}
     merge into {{ '"{}"'.format(target_relation).replace('.', '"."') | upper }} target
@@ -57,15 +52,15 @@
       on (temp.{{ unique_key }} = target.{{ unique_key }})
     when matched then
       update set
-      {% for col in dest_columns if col != unique_key %}
+      {% for col in dest_columns if col != unique_key -%}
         target.{{ col }} = temp.{{ col }}{% if not loop.last %}, {% endif %}
-      {% endfor %}
+      {%- endfor %}
     when not matched then
       insert( {{ dest_cols_csv }} )
       values(
-        {% for col in dest_columns %}
+        {% for col in dest_columns -%}
           temp.{{ col }}{% if not loop.last %}, {% endif %}
-        {% endfor %}
+        {%- endfor %}
       )
     {%- else %}
     insert into {{ '"{}"'.format(target_relation).replace('.', '"."') | upper }} ({{ dest_cols_csv }})
