@@ -123,11 +123,9 @@ class OracleAdapter(SQLAdapter):
         names: List[str]
         if column_names is None:
             columns = self.get_columns_in_relation(relation_a)
-            # names = sorted((self.quote(c.name) for c in columns)
-            names = sorted((c.name for c in columns))
+            names = sorted((self.quote(c.name) for c in columns))
         else:
-            # names = sorted((self.quote(n) for n in column_names))
-            names = sorted((n for n in column_names))
+            names = sorted((self.quote(n) for n in column_names))
         columns_csv = ', '.join(names)
 
         sql = COLUMNS_EQUAL_SQL.format(
