@@ -179,6 +179,9 @@
       order by ordinal_position
 
   {% endcall %}
+  {{ log("### DEBUG get_columns_in_relation ### response" ~ load_result('get_columns_in_relation').response) }}
+  {{ log("### DEBUG get_columns_in_relation ### data" ~ load_result('get_columns_in_relation').data) }}
+  {{ log("### DEBUG get_columns_in_relation ### table" ~ load_result('get_columns_in_relation').table) }}
   {% set table = load_result('get_columns_in_relation').table %}
   {{ return(sql_convert_columns_in_relation(table)) }}
 {% endmacro %}
