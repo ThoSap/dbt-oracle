@@ -166,7 +166,7 @@
           from sys.all_tab_columns
       )
       select
-          '"' | upper(column_name) | '"' as "name",
+          lower(column_name) as "name",
           lower(data_type) as "type",
           char_length as "character_maximum_length",
           numeric_precision as "numeric_precision",
@@ -316,8 +316,8 @@
       from    sys.all_views
   )
   select  lower(table_catalog) as "database_name"
-        , '"' || upper(table_name) || '"' as "name"
-        , '"' || upper(table_schema) || '"' as "schema_name"
+        , lower(table_name) as "name"
+        , lower(table_schema) as "schema_name"
         , case table_type
             when 'BASE TABLE' then 'table'
             when 'VIEW' then 'view'
