@@ -299,7 +299,7 @@
 {% macro oracle__list_relations_without_caching(schema_relation) %}
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
     with tables as (
-      select  upper(sys_context('userenv', 'DB_NAME')) table_catalog,
+      select  upper(sys_context('userenv', 'DB_NAME')) table_catalog
             , upper(owner) table_schema
             , table_name
             , case
