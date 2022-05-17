@@ -23,8 +23,8 @@ from dbt.adapters.base.relation import BaseRelation, Policy
 @dataclass
 class OracleQuotePolicy(Policy):
     database: bool = False
-    schema: bool = False
-    identifier: bool = False
+    schema: bool = True
+    identifier: bool = True
 
 
 @dataclass

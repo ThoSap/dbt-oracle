@@ -5,8 +5,8 @@ sources:
     schema: sh
     quoting:
         database: false
-        schema: false
-        identifier: false
+        schema: true
+        identifier: true
     tables:
       - name: customers
       - name: sales
