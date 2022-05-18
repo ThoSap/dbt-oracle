@@ -68,5 +68,5 @@
        select {{ dest_cols_csv }}
        from {{ '"{}"'.format(tmp_relation).replace('.', '"."') | upper }}
     )
-    {%- endif %-}
+    {%- endif -%}
 {%- endmacro %}
